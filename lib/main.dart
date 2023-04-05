@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +31,7 @@ class MyApp extends StatelessWidget {
               }
               return const CircularProgressIndicator();
             },
-            future: svgToMemoryImage("assets/triangle.svg", 16),
+            future: canvasToMemoryImage(16),
           ),
         ),
       ),
@@ -40,13 +39,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<MemoryImage> svgToMemoryImage(String path, int size) async {
-  final pictureInfo = await vg.loadPicture(
-    SvgAssetLoader(path),
-    null,
-  );
+Future<MemoryImage> canvasToMemoryImage(int size) async {
+  final paint = Paint()..color = Colors.red;
 
-  final image = pictureInfo.picture.toImageSync(size, size); // Image was null
+  final recorder = PictureRecorder();
+  final canvas = Canvas(recorder);
+
+  canvas.drawCircle(Offset.zero, 10, paint);
+
+  final picture = recorder.endRecording();
+
+  final image = picture.toImageSync(size, size); // Image was null
   final byteData = await image.toByteData(
     format: ImageByteFormat.png,
   );
